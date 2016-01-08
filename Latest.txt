@@ -1,1 +1,1 @@
-http://www.asp.net/mvc/overview/getting-started/introduction/adding-validation
+https://azure.microsoft.com/en-us/documentation/articles/web-sites-dotnet-deploy-aspnet-mvc-app-membership-oauth-sql-database/
