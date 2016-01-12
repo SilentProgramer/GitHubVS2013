@@ -4,6 +4,9 @@
 }
 
 <h2>@ViewBag.Title.</h2>
+<b>Before you register, make sure that you have correctly mentioned a valid email id and password in the web.config for the gmail smtp to work<br/>
+    Also, you will first have to log into this mail id and turn on access by less secure apps (go to https://www.google.com/settings/security/lesssecureapps )<br/>
+    This is because we are using a rudimentary smtp client to log into gmail smtp server, and google will refuse this connection normally.</b>
 
 @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
@@ -15,6 +18,12 @@
         @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
             @Html.TextBoxFor(m => m.UserName, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
         </div>
     </div>
     <div class="form-group">

@@ -69,6 +69,7 @@ namespace MVCAuthentication.Controllers
             return View();
         }
 
+
         //
         // POST: /Account/Register
         [HttpPost]
@@ -85,10 +86,7 @@ namespace MVCAuthentication.Controllers
                     await SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    AddErrors(result);
-                }
+                AddErrors(result);
             }
 
             // If we got this far, something failed, redisplay form

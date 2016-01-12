@@ -59,5 +59,13 @@ namespace MvcAuthWithEmailConfirmation.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+
+        /// <summary>
+        /// Custom property added to include email in registration
+        /// </summary>
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
     }
 }

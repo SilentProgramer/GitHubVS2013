@@ -9,6 +9,11 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using MvcAuthWithEmailConfirmation.Models;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security.DataProtection;
+using MvcAuthWithEmailConfirmation.Emailer;
+using System.Net.Mail;
+using System.Configuration;
 
 namespace MvcAuthWithEmailConfirmation.Controllers
 {
@@ -78,11 +83,29 @@ namespace MvcAuthWithEmailConfirmation.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser() { UserName = model.UserName };
+                //var user = new ApplicationUser() { UserName = model.UserName };
+                var user = new ApplicationUser() { UserName = model.UserName, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await SignInAsync(user, isPersistent: false);
+
+                    //you must assign a token provider before you can send or receive emails. Otherwise you will get an ITokenProvider exception
+                    var provider = new DpapiDataProtectionProvider("MvcAuthWithEmailConfirmation");
+                    UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(provider.Create("EmailConfirmation"));
+
+
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account",
+                        new { userId = user.Id, code = code },
+                        protocol: Request.Url.Scheme);
+
+                    UserManager.EmailService = new EmailService();
+
+                    await UserManager.SendEmailAsync(user.Id,
+                        "Confirm your account", "Please confirm your account by clicking <a href=\""
+                        + callbackUrl + "\">here</a>");
+
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -94,6 +117,27 @@ namespace MvcAuthWithEmailConfirmation.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
+
+        //
+        // GET: /Account/ConfirmEmail
+        [AllowAnonymous]
+        public async Task<ActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+
+            //you must assign a token provider before you can send or receive emails. Otherwise you will get an ITokenProvider exception
+            var provider = new DpapiDataProtectionProvider("MvcAuthWithEmailConfirmation");
+            UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(provider.Create("EmailConfirmation"));
+
+            var result = await UserManager.ConfirmEmailAsync(userId, code);
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+        }
+
+
 
         //
         // POST: /Account/Disassociate
