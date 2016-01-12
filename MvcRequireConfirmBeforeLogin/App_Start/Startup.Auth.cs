@@ -3,7 +3,7 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 
-namespace MVCAuthentication
+namespace MvcRequireConfirmBeforeLogin
 {
     public partial class Startup
     {
@@ -28,14 +28,11 @@ namespace MVCAuthentication
             //   consumerKey: "",
             //   consumerSecret: "");
 
-            app.UseFacebookAuthentication(
-               appId: "xyz",
-               appSecret: "xyz");
+            //app.UseFacebookAuthentication(
+            //   appId: "",
+            //   appSecret: "");
 
-            app.UseGoogleAuthentication(
-                clientId: "xyz",
-                clientSecret: "xyz"
-                );
+            //app.UseGoogleAuthentication();
         }
     }
 }
