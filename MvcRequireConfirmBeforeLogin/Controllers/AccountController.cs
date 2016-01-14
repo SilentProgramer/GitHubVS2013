@@ -9,6 +9,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using MvcRequireConfirmBeforeLogin.Models;
+using Microsoft.Owin.Security.DataProtection;
+using Microsoft.AspNet.Identity.Owin;
+using MvcRequireConfirmBeforeLogin.Emailer;
 
 namespace MvcRequireConfirmBeforeLogin.Controllers
 {
@@ -43,22 +46,26 @@ namespace MvcRequireConfirmBeforeLogin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            if (ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
-                var user = await UserManager.FindAsync(model.UserName, model.Password);
-                if (user != null)
+                return View(model);
+            }
+
+            // Require the user to have a confirmed email before they can log on.
+            var user = await UserManager.FindByNameAsync(model.UserName);
+            if(user != null)
+            {
+                if(!await UserManager.IsEmailConfirmedAsync(user.Id))
                 {
-                    await SignInAsync(user, model.RememberMe);
-                    return RedirectToLocal(returnUrl);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Invalid username or password.");
+                    ViewBag.errorMessage = "You must have a confirmed email to log on.";
+                    return View("Error");
                 }
             }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, change to shouldLockout: true
+            var result = await SignInManager.PasswordSignInAsync<IdentityUser, string>(model.UserName, model.Password, model.RememberMe, shouldLockout: false);
+            
         }
 
         //
@@ -78,12 +85,34 @@ namespace MvcRequireConfirmBeforeLogin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser() { UserName = model.UserName };
+                var user = new ApplicationUser() { UserName = model.UserName, Email=model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    //Commenting the line below to prevent log in until the user is confirmed
+                    //await SignInAsync(user, isPersistent: false);
+
+                    //you must assign a token provider before you can send or receive emails. Otherwise you will get an ITokenProvider exception
+                    var provider = new DpapiDataProtectionProvider("MvcRequireConfirmBeforeLogin");
+                    UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(provider.Create("EmailConfirmation");
+
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail","Account",
+                        new {userId = user.Id,code=code},
+                        protocol:Request.Url.Scheme);
+
+                    UserManager.EmailService = new EmailService();
+
+                    await UserManager.SendEmailAsync(user.Id,"Confirm Your Account","Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+
+                    //Uncomment to debug locally
+                    TempData["ViewBagLink"] = callbackUrl;
+
+                    ViewBag.Message = "Check your email and confirm your account, you must be confirmed before you log in";
+
+                    return View("info");
+                    //return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -93,6 +122,20 @@ namespace MvcRequireConfirmBeforeLogin.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+
+        [AllowAnonymous]
+        public async Task<ActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+                return View("Error");
+            //you must assign a token provider before you can send or receive emails. Otherwise you will get an ITokenProvider exception
+            var provider = new DpapiDataProtectionProvider("MvcRequireConfirmBeforeLogin");
+            UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(provider.Create("EmailConfirmation"));
+
+            var result = await UserManager.ConfirmEmailAsync(userId, code);
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
         //
