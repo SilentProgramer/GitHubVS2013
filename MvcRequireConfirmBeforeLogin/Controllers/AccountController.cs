@@ -64,8 +64,23 @@ namespace MvcRequireConfirmBeforeLogin.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync<IdentityUser, string>(model.UserName, model.Password, model.RememberMe, shouldLockout: false);
+            var result = await new SignInManager<ApplicationUser, string>(UserManager,AuthenticationManager).PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, shouldLockout: false);
+
+            switch(result)
+            {
+                case SignInStatus.Success:
+                    return RedirectToLocal(returnUrl);
+                case SignInStatus.LockedOut:
+                    return View("Lockout");
+                case SignInStatus.RequiresVerification:
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                case SignInStatus.Failure:
+                default:
+                    ModelState.AddModelError("", "Invalid login attempt.");
+                    return View(model);
+            }
             
+
         }
 
         //
@@ -94,7 +109,7 @@ namespace MvcRequireConfirmBeforeLogin.Controllers
 
                     //you must assign a token provider before you can send or receive emails. Otherwise you will get an ITokenProvider exception
                     var provider = new DpapiDataProtectionProvider("MvcRequireConfirmBeforeLogin");
-                    UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(provider.Create("EmailConfirmation");
+                    UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(provider.Create("EmailConfirmation"));
 
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail","Account",
@@ -103,7 +118,8 @@ namespace MvcRequireConfirmBeforeLogin.Controllers
 
                     UserManager.EmailService = new EmailService();
 
-                    await UserManager.SendEmailAsync(user.Id,"Confirm Your Account","Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    //for debugging purposes, we need not send the mail. However, if you want, you can uncomment this line to send the mail
+                    //await UserManager.SendEmailAsync(user.Id,"Confirm Your Account","Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
 
                     //Uncomment to debug locally

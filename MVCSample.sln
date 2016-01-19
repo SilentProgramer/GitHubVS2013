@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcAuthWithEmailConfirmatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcRequireConfirmBeforeLogin", "MvcRequireConfirmBeforeLogin\MvcRequireConfirmBeforeLogin.csproj", "{8854233F-012E-46D7-9575-B8BDB9DE2A96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{2A208920-E39E-4C0D-9D7E-7CE7B3D1B771}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{F9DBF6C3-9A40-420A-80FF-99346294AD7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{8854233F-012E-46D7-9575-B8BDB9DE2A96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8854233F-012E-46D7-9575-B8BDB9DE2A96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8854233F-012E-46D7-9575-B8BDB9DE2A96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A208920-E39E-4C0D-9D7E-7CE7B3D1B771}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A208920-E39E-4C0D-9D7E-7CE7B3D1B771}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A208920-E39E-4C0D-9D7E-7CE7B3D1B771}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A208920-E39E-4C0D-9D7E-7CE7B3D1B771}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9DBF6C3-9A40-420A-80FF-99346294AD7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9DBF6C3-9A40-420A-80FF-99346294AD7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9DBF6C3-9A40-420A-80FF-99346294AD7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9DBF6C3-9A40-420A-80FF-99346294AD7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

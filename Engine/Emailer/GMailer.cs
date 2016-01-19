@@ -8,7 +8,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MvcAuthWithEmailConfirmation.Emailer
+namespace Engine.Emailer
 {
     //before running the program, set the password in the config entry
     //However, make sure to remove the password once you have finished 
